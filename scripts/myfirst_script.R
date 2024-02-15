@@ -17,3 +17,12 @@ ggplot(data, aes(x = mpg, y = hp, color = am)) +
   labs(title = "Miles per gallon vs. Horsepower",
        x = "Miles per gallon", y = "Horsepower") +
   theme_minimal()
+
+
+# anlayse the data for EDA
+summary(data)
+
+# create a boxplot of miles per gallon by transmission type
+boxplot(mpg ~ am, data = data, 
+        xlab = "Transmission type", ylab = "Miles per gallon",
+        main = "Miles per gallon by transmission type")
