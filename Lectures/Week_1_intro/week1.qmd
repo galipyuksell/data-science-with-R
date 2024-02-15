@@ -323,7 +323,7 @@ mtcars
 
 ```{r, echo=TRUE, include=TRUE}
 # read csv file
-mydata <- read.csv("~/Library/CloudStorage/OneDrive-marmara.edu.tr/mac_projects 2/R_lecture/data/cars.csv") 
+mydata <- read.csv("C:/Users/hmehm/OneDrive - marmara.edu.tr/mac_projects 2/R_lecture/data/cars.csv") 
 View(mydata)
 # write csv
 write.csv(mydata, file = "~/Library/CloudStorage/OneDrive-marmara.edu.tr/mac_projects 2/R_lecture/data/mydata.csv")
@@ -334,7 +334,7 @@ View(mydata)
 
 # read excel
 library(readxl)
-mydata1 <- read_excel("~/Library/CloudStorage/OneDrive-marmara.edu.tr/mac_projects 2/R_lecture/data/datacom.xlsx")
+mydata1 <- read_excel("C:/Users/hmehm/OneDrive - marmara.edu.tr/mac_projects 2/R_lecture/data/datacom.xlsx")
 View(mydata1)
 
 ```
@@ -378,7 +378,7 @@ Here's how you can use the "here" package in R:
 -   To create file paths relative to your project's root directory, use the \`here()\` function. For example, to specify a path to a data file in your project, you can do the following:
 
 ```{r}
-dpath <- "~/Library/CloudStorage/OneDrive-marmara.edu.tr/mac_projects 2/R_lecture/data/"
+dpath <- "C:/Users/hmehm/OneDrive - marmara.edu.tr/mac_projects 2/R_lecture/data"
 mydata2 <- read.csv(here(dpath, "/cars.csv"))
 write.csv(mydata, here(dpath, "cars2.csv"))
 ```
