@@ -10,8 +10,7 @@ execute:
 df-print: kable
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE)
+```{r setup, echo=FALSE, message=FALSE}
 
 # loaded packages
 library(here)
@@ -76,7 +75,7 @@ RStudio is an open-source integrated development environment (IDE) for R created
 
 You can use R as a calculator to perform basic arithmetic operations. Just type in your calculations, and R will provide the results.
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 
 # Addition
 
@@ -100,7 +99,7 @@ You can use R as a calculator to perform basic arithmetic operations. Just type 
 
 In R, you can create and store values in objects. This is done using the assignment operator `<-`. You can name the object on the left and assign a value or expression to it on the right.
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 
 # Creating objects
 
@@ -118,7 +117,7 @@ a <- x * y - z
 
 R has a vast collection of built-in functions, each with specific purposes. Functions are called by their names followed by arguments in parentheses.
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 
 # Using built-in functions
 
@@ -130,7 +129,7 @@ rep(3, 6) # Repeat a value
 
 You can also create your own functions in R.
 
-```{r, echo=TRUE, include=TRUE}
+```{r }
 
 # Defining a custom function
 
@@ -196,6 +195,10 @@ R supports various operators for arithmetic, comparison, and logical operations.
 
 -   `isTRUE` (Test if an expression is TRUE)
 
+::: callout-note
+⚠️ The `|` is an “or” operator that operates on each element of a vector, while the `||` is another “or” operator that stops evaluation the first time that the result is true!
+:::
+
 #### Colon Operator
 
 The colon `:` operator is used to create sequences of numbers, making it helpful for creating numeric vectors.
@@ -212,7 +215,7 @@ The colon `:` operator is used to create sequences of numbers, making it helpful
 
 The `%in%` operator checks if elements belong to a vector and is often used for data manipulation.
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 
 # Checking if elements belong to a vector
 
@@ -230,7 +233,7 @@ R supports different data types, including:
 
 \- **Numeric**: These are numeric values (e.g., 3.14, 42).
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 
 x <- c(1, 2, 3, 4.5, 6.7)
 
@@ -238,14 +241,14 @@ x <- c(1, 2, 3, 4.5, 6.7)
 
 **Character**: These are text values (e.g., "apple," "banana").
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 
 y <- c("apple", "banana", "cherry")
 ```
 
 **Logical:** These are binary values (e.g., TRUE or FALSE).
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 
 z <- c(TRUE, FALSE, TRUE, FALSE, TRUE)
 
@@ -265,7 +268,7 @@ z <- c(TRUE, FALSE, TRUE, FALSE, TRUE)
 
 \- Atomic vectors store homogeneous data, meaning all elements are of the same data type.
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 
 # Create an atomic vector
 
@@ -276,7 +279,7 @@ var1 <- c(1, 2.5, 4, 6)
 
 \- Lists store heterogeneous data, allowing different data types in the same list.
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 
 # Create a list
 
@@ -287,7 +290,7 @@ var2 <- list("name", 2, 3, c("item1", "item2"), 16, 75)
 
 \- Matrices are two-dimensional data structures.
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 
 # Create a matrix
 
@@ -297,7 +300,7 @@ a <- matrix(1:6, ncol = 3, nrow = 2)
 
 \- Data frames are a versatile and commonly used data structure in R. They are similar to matrices but can store both numeric and non-numeric data. Data frames are often used to store datasets. Data frames are particularly useful for working with tabular data, and you can perform a wide range of operations on them.
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 # create a data frame
 data <- data.frame(
   Name = c("Alice", "Bob", "Charlie"),
@@ -310,7 +313,7 @@ data <- data.frame(
 
 R have multiple in-built data
 
-```{r, echo=TRUE, include=TRUE}
+```{r}
 # to see which data you have
 data()
 
@@ -321,20 +324,23 @@ mtcars
 
 ### Reading existing local data
 
-```{r, echo=TRUE, include=TRUE}
+```{r, size="small"}
 # read csv file
-mydata <- read.csv("C:/Users/hmehm/OneDrive - marmara.edu.tr/mac_projects 2/R_lecture/data/cars.csv") 
+mydata <- read.csv("~/Library/CloudStorage/OneDrive-marmara.edu.tr/mac_projects 2/R_lecture/data/cars.csv") 
 View(mydata)
 # write csv
-write.csv(mydata, file = "~/Library/CloudStorage/OneDrive-marmara.edu.tr/mac_projects 2/R_lecture/data/mydata.csv")
+write.csv(mydata, file = 
+            "~/Library/CloudStorage/OneDrive-marmara.edu.tr/mac_projects 2/R_lecture/data/mydata.csv")
 
 # read csv-file from net
-mydata <- read.csv("https://gist.githubusercontent.com/MorganZhang100/0c489d1f376a04d5436a/raw/7c335ebe48e5751f1334bb6e4502254e3c1d1c55/cars.csv")
+mydata <- read.csv(
+  "https://gist.githubusercontent.com/MorganZhang100/0c489d1f376a04d5436a/raw/7c335ebe48e5751f1334bb6e4502254e3c1d1c55/cars.csv")
 View(mydata)
 
 # read excel
 library(readxl)
-mydata1 <- read_excel("C:/Users/hmehm/OneDrive - marmara.edu.tr/mac_projects 2/R_lecture/data/datacom.xlsx")
+mydata1 <- read_excel(
+  "~/Library/CloudStorage/OneDrive-marmara.edu.tr/mac_projects 2/R_lecture/data/datacom.xlsx")
 View(mydata1)
 
 ```
@@ -378,7 +384,7 @@ Here's how you can use the "here" package in R:
 -   To create file paths relative to your project's root directory, use the \`here()\` function. For example, to specify a path to a data file in your project, you can do the following:
 
 ```{r}
-dpath <- "C:/Users/hmehm/OneDrive - marmara.edu.tr/mac_projects 2/R_lecture/data"
+dpath <- "~/Library/CloudStorage/OneDrive-marmara.edu.tr/mac_projects 2/R_lecture/data"
 mydata2 <- read.csv(here(dpath, "/cars.csv"))
 write.csv(mydata, here(dpath, "cars2.csv"))
 ```
@@ -405,3 +411,5 @@ Once you have tidy data with the variables you need, there are two main engines 
 The last step of data science is **communication**, an absolutely critical part of any data analysis project. It doesn’t matter how well your models and visualisation have led you to understand the data unless you can also communicate your results to others.
 
 Surrounding all these tools is **programming**. Programming is a cross-cutting tool that you use in every part of the project. You don’t need to be an expert programmer to be a data scientist, but learning more about programming pays off because becoming a better programmer allows you to automate common tasks, and solve new problems with greater ease.
+
+For more see: [Modern Data Science with R - Appendix B — Introduction to R and RStudio (mdsr-book.github.io)](https://mdsr-book.github.io/mdsr3e/B-appR.html#appR-exercises)
