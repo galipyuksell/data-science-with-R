@@ -27,9 +27,17 @@ dpath <- "data"
 
 # Data visualization
 
+This week we will engage with the question of why well-designed data graphics are important and describe a taxonomy for understanding their composition.
+
 🚀well-designed data graphics are important
 
 🚀the analogy that creating data graphics is like cooking: Anyone can learn to type graphical commands and generate plots on the computer. Similarly, anyone can heat up food in a microwave. What separates a high-quality visualization from a plain one are the same elements that separate great chefs from novices: mastery of their tools, knowledge of their ingredients, insight, and creativity.
+
+### An Example for Thinking of Data Graphics
+
+::: callout-note
+💡 The U.S. presidential election, held every four years, attracts immense interest. Candidates begin fundraising nearly two years prior, amassing hundreds of millions for national campaigns, showcasing leadership and organizational skills crucial for the presidency. Concerns about money's influence arise, notably due to unlimited political spending by corporations permitted by Citizens United v. FEC. Data science is pivotal in unraveling campaign spending patterns. The FEC logs contributions over \$200 and committee spending, alongside election results. Integrating these datasets demands skill. For the timebeing, our current emphasis lies on using graphical displays for clear and accurate messaging.
+:::
 
 ```{r,load-spent, message=FALSE, include=FALSE}
 load(here::here("data", "fec12_spent.rda"))
@@ -38,7 +46,7 @@ load(here::here("data", "fec12_spent2.rda"))
 
 ```{r, spent, echo=FALSE, warning=FALSE, fig.cap="Amount of money spent on individual candidates in the general election phase of the 2012 federal election cycle, in millions of dollars. Candidacies with at least \\$4 million in spending are depicted."}
 spent %>%
-  filter(total > 4000) %>%
+  filter(total > 2000000) %>%
   mutate(spent = total)%>%
   ggplot(aes(x = name, y = spent)) + 
   geom_col() + 
@@ -48,6 +56,10 @@ spent %>%
   coord_flip()
 ```
 
+::: callout-note
+💡 From the figure above we see that President Barack Obama's re-election campaign outspent all other candidates, notably more than doubling the expenditure of his Republican opponent, Mitt Romney. However, committees aren't restricted to supporting candidates; they can also allocate funds against specific candidates, notably through attack ads. Figure below dissects whether the spending was directed for or against the candidate.
+:::
+
 ```{r}
 spent_tidy <- spent2 %>%
   group_by(party) %>%
@@ -55,11 +67,14 @@ spent_tidy <- spent2 %>%
   pivot_longer(-party, names_to = "type", values_to = "spent") %>%
   filter(spent > 1000)
 
-ggplot(data = spent_tidy, aes(x = party, y = spent / 1e6, fill = type)) +
+ggplot(data = spent_tidy, aes(x = party, y = spent , fill = type)) +
   scale_x_discrete(name = NULL) + 
   scale_y_continuous(name = "Money Spent (millions of USD)", labels = scales::dollar) + 
   geom_col()
+
 ```
+
+From the figure above, we see that more money was spent supporting Republican candidates than Democrats, and more money was spent attacking Democratic candidates than Republican. By further subdividing the contributions in Figure above, by the office being sought, we can see in Figure below that while more money was spent supporting Republican candidates for all elective branches of government, it was only in the presidential election that more money was spent attacking Democratic candidates. In fact, slightly more money was spent attacking Republican House and Senate candidates.
 
 ```{r}
 spent2 %>%
@@ -68,7 +83,7 @@ spent2 %>%
   summarize(supporting = sum(supporting), against = sum(against)) %>%
   pivot_longer(-c(party, office), names_to = "type", values_to = "spent") %>%
   filter(spent > 1000) %>%
-ggplot(aes(x = party, y = spent / 1e6, fill = type)) +
+ggplot(aes(x = party, y = spent , fill = type)) +
   scale_x_discrete(name = NULL) + 
   scale_y_continuous(name = "Money Spent (millions of USD)", labels = scales::dollar) + 
   geom_col() + 
@@ -86,6 +101,9 @@ ggplot(data = donations, aes(x = transaction_amt)) +
   facet_wrap(~candidate)
 ```
 
+\
+During the presidential election, a theme emerged suggesting that Romney's campaign was backed by a select group of wealthy donors, while Obama's support came from a more diverse economic spectrum. To investigate this claim, Figure above presents histograms summarizing over one million donations made by individuals to the major committees supporting each candidate (Obama for America and the Obama Victory Fund 2012 for Obama, and Romney for President and Romney Victory 2012 for Romney). While the histograms indicate that Obama received more smaller donations, suggesting some support for the claim, the evidence is inconclusive. Challenges include both candidates receiving numerous small donations alongside a few larger ones, making it difficult to discern the distribution on the horizontal axis. Additionally, comparing the histograms side by side is challenging, and donations from both phases of the presidential election are aggregated, further complicating analysis.
+
 ```{r}
 ggplot(data = donations, aes(x = transaction_amt)) + 
   geom_density(aes(color = candidate), adjust = 4) + 
@@ -94,6 +112,14 @@ ggplot(data = donations, aes(x = transaction_amt)) +
 #  coord_trans(x = "log10") + 
   facet_wrap(~phase)
 ```
+
+Figure above addresses previous issues by (1) utilizing density curves instead of histograms for direct distribution comparison, (2) employing the logarithm of the donation amount on the horizontal scale to emphasize relevant data, and (3) segregating donations by the election phase. This refinement enables more nuanced conclusions. The right panel corroborates the assertion that Obama's donations originated from a broader base during the primary election phase, with a noticeable influx of smaller donations. However, during the general phase, the distribution of donations to either campaign shows virtually no distinction.
+
+## **Composing data graphics**
+
+Former *New York Times* intern and [FlowingData.com](https://flowingdata.com/) creator [Nathan Yau](https://en.wikipedia.org/w/index.php?search=Nathan%20Yau) makes the analogy that creating data graphics is like cooking: Anyone can learn to type graphical commands and generate plots on the computer. Similarly, anyone can heat up food in a microwave. What separates a high-quality visualization from a plain one are the same elements that separate great chefs from novices: mastery of their tools, knowledge of their ingredients, insight, and creativity ([Yau 2013](https://mdsr-book.github.io/mdsr3e/99-references.html#ref-yau2013dp)). In this section, we present a framework—rooted in scientific research—for understanding data graphics. Our hope is that by internalizing these ideas you will refine your data graphics palette.
+
+### **A taxonomy for data graphics**
 
 **In ggplot framework**, data graphics can be understood in terms of four basic elements: visual cues, coordinate systems, scale, and context.
 
@@ -113,13 +139,13 @@ ggplot(data = donations, aes(x = transaction_amt)) +
 | Shade      | either        | to what extent? how severely?                      |
 | Color      | either        | to what extent? how severely?                      |
 
-Research into graphical perception (dating back to the mid-1980s) has shown that human beings' ability to perceive differences in magnitude accurately descends in this order (Cleveland and McGill 1984). That is, humans are quite good at accurately perceiving differences in position (e.g., how much taller one bar is than another), but not as good at perceiving differences in angles. This is one reason why many people prefer bar charts to [*pie charts*](https://en.wikipedia.org/w/index.php?search=pie%20charts). Our relatively poor ability to perceive differences in color is a major factor in the relatively low opinion of [*heat maps*](https://en.wikipedia.org/w/index.php?search=heat%20maps) that many data scientists have.
+Research into graphical perception (dating back to the mid-1980s) has shown that human beings' ability to perceive differences in magnitude accurately descends in this order (Cleveland and McGill 1984). That is, **humans are quite good at accurately perceiving differences in position (e.g., how much taller one bar is than another), but not as good at perceiving differences in angles.** This is one reason why many people prefer bar charts to [*pie charts*](https://en.wikipedia.org/w/index.php?search=pie%20charts). Our relatively poor ability to perceive differences in color is a major factor in the relatively low opinion of [*heat maps*](https://en.wikipedia.org/w/index.php?search=heat%20maps) that many data scientists have.
 
 -   **Coordinate systems:** How are the data points organized? While any number of coordinate systems are possible, three are most common:
 
     -   **Cartesian**: The familiar (x,y)-rectangular coordinate system with two perpendicular axes.
 
-    -   **Polar**: The radial analog of the Cartesian system with points identified by their radius ρ and angle θ.
+    -   **Polar**: The radial analog of the Cartesian system with points identified by their radius ρ and angle θ.
 
     -   **Geographic**: The increasingly important system in which we have locations on the curved surface of the Earth, but we are trying to represent these locations in a flat two-dimensional plane.
 
@@ -133,18 +159,148 @@ Research into graphical perception (dating back to the mid-1980s) has shown that
 
 -   **Context:** Context can be added to data graphics in the form of titles or subtitles that explain what is being shown, axis labels that make it clear how units and scale are depicted, or reference points or lines that contribute relevant external information. While one should avoid cluttering up a data graphic with excessive annotations, it is necessary to provide proper context.
 
-🚀Color is one of the flashiest, but most misperceived and misused visual cues. In making color choices, there are a few key ideas that are important for any data scientist to understand. First, while color can be visually appealing to humans, it often isn't as informative as we might hope. Second, approximately 8% of the population---most of whom are men---have some form of color blindness. To prevent issues with color blindness, avoid contrasting red with green in data graphics. As a bonus, your plots won't seem Christmas-y! Sidenote: The **RColorBrewer** package provides functionality to use these palettes directly in **R**
+-   **Small multiples and layers:** One of the fundamental challenges of creating data graphics is condensing multivariate information into a two-dimensional image. While three-dimensional images are occasionally useful, they are often more confusing than anything else. Instead, here are three common ways of incorporating more variables into a two-dimensional data graphic:
 
-**With a little practice, one can learn to dissect data graphics in terms of the taxonomy outlined above. For example, your basic scatterplot uses *position* in the *Cartesian* plane with *linear* scales to show the relationship between two variables. In what follows, we identify the visual cues, coordinate system, and scale in a series of simple data graphics.**
+    -   **Small multiples**: Also known as [*facets*](https://en.wikipedia.org/w/index.php?search=facets), a single data graphic can be composed of several small multiples of the same basic plot, with one (discrete) variable changing in each of the small sub-images.
 
-```{r}
-# use SAT score for visualization 
-ggplot(data=SAT, aes(x=state, y=math))+
-  geom_col()+
-  scale_x_discrete("States")+
-  scale_y_continuous(name="Average SAT Scores", limits=c(0, 600))+
-  ggtitle("Average SAT mat score")+
-  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+    -   **Layers**: It is sometimes appropriate to draw a new layer on top of an existing data graphic. This new layer can provide context or comparison, but there is a limit to how many layers humans can reliably parse.
+
+    -   **Animation**: If time is the additional variable, then an animation can sometimes effectively convey changes in that variable. Of course, this doesn’t work on the printed page and makes it impossible for the user to see all the data at once.
+
+#### **Color**
+
+🚀Color is one of the flashiest, but most misperceived and misused visual cues. In making color choices, there are a few key ideas that are important for any data scientist to understand. First, while color can be visually appealing to humans, it often isn't as informative as we might hope. Second, approximately 8% of the population---most of whom are men---have some form of color blindness. To prevent issues with color blindness, avoid contrasting red with green in data graphics. As a bonus, your plots won't seem Christmas-y!
+
+::: callout-note
+💡 Sidenote: The **RColorBrewer** package provides functionality to use these palettes directly in **R**
+:::
+
+**With a little practice, one can learn to dissect data graphics in terms of the taxonomy outlined above. For example, your basic scatterplot uses *position* in the *Cartesian* plane with *linear* scales to show the relationship between two variables.**
+
+# **A grammar for graphics**
+
+We have presented a taxonomy for understanding data graphics. Now, we can illustrate how the **ggplot2** package can be used to create data graphics.
+
+In the grammar of **ggplot2**, an [*aesthetic*](https://en.wikipedia.org/w/index.php?search=aesthetic) is an explicit mapping between a variable and the visual cues that represent its values. A [*glyph*](https://en.wikipedia.org/w/index.php?search=glyph) is the basic graphical element that represents one case (other terms used include “mark” and “symbol”). In a scatterplot, the *positions* of a glyph on the plot—in both the horizontal and vertical senses—are the [*visual cues*](https://en.wikipedia.org/w/index.php?search=visual%20cues) that help the viewer understand how big the corresponding quantities are. The *aesthetic* is the mapping that defines these correspondences. When more than two variables are present, additional aesthetics can marshal additional visual cues. Note also that some visual cues (like *direction* in a time series) are implicit and do not have a corresponding aesthetic.
+
+### Example: 
+
+We begin with a data set that includes measures that are relevant to answer questions about economic productivity. The `CIACountries` data table contains seven variables collected for each of 236 countries: population (`pop`), area (`area`), gross domestic product (`gdp`), percentage of GDP spent on education (`educ`), length of roadways per unit area (`roadways`), Internet use as a fraction of the population (`net_users`), and the number of barrels of oil produced per day (`oil_prod`).
+
+```{r, echo=FALSE, message=FALSE}
+CIACountries %>%
+  select(-area, -pop) %>%
+  head() %>%
+  mdsr_table(caption = "A selection of variables from the first six rows of the CIA countries data table.") %>%
+  kableExtra::column_spec(1, width = "10em")
 ```
 
-This plot uses the visual cue of [*length*](https://en.wikipedia.org/w/index.php?search=length) to represent the math SAT score on the vertical axis with a *linear*scale. The [*categorical*](https://en.wikipedia.org/w/index.php?search=categorical) variable of `state` is arrayed on the horizontal axis. Although the states are ordered alphabetically, it would not be appropriate to consider the `state` variable to be ordinal, since the ordering is not meaningful in the context of math SAT scores. The coordinate system is *Cartesian*, although as noted previously, the horizontal coordinate is meaningless. Context is provided by the axis labels and title.
+### **Aesthetics**
+
+In the simple scatterplot shown in the Figure below, we employ the grammar of graphics to build a multivariate data graphic. In **ggplot2**, the `ggplot()` command creates a plot object `g`, and any arguments to that function are applied across any subsequent plotting directives. In this case, this means that any variables mentioned anywhere in the plot are understood to be within the `CIACountries` data frame, since we have specified that in the `data` argument. Graphics in **ggplot2** are built incrementally by elements. In this case, the only glyphs added are points, which are plotted using the `geom_point()` function. The arguments to `geom_point()` specify *where* and *how* the points are drawn. Here, the two *aesthetics* (`aes()`) map the vertical (`y`) coordinate to the `gdp` variable, and the horizontal (`x`) coordinate to the `educ` variable. The `size` argument to `geom_point()` changes the size of all of the glyphs.
+
+```{r, simple-glyph, warning=FALSE, echo=TRUE, fig.cap="Scatterplot using only the position aesthetic for glyphs."}
+g <- ggplot(data = CIACountries, aes(y = gdp, x = educ))
+g + geom_point(size = 3)
+```
+
+In Figure above, the glyphs are simple. Only position in the frame distinguishes one glyph from another. The shape, size, etc. of all of the glyphs are identical—there is nothing about the glyph itself that identifies the country.
+
+However, it is possible to use a glyph with several attributes. We can define additional aesthetics to create new visual cues. In Figure below, we have extended the previous example by mapping the color of each dot to the categorical `net_users` variable.
+
+```{r, net-use-color, warning=FALSE, echo=TRUE, fig.cap="(ref:net-use-color-cap)"}
+g + geom_point(aes(color = net_users), size = 3)
+```
+
+Changing the glyph is as simple as changing the function that draws that glyph—the aesthetic can often be kept exactly the same. In the figure below, we plot text instead of a dot.
+
+```{r, country-labels, warning=FALSE, echo=TRUE, fig.cap="Scatterplot using both location and label as aesthetics."}
+g + geom_text(aes(label = country, color = net_users), size = 3)
+```
+
+Of course, we can employ multiple aesthetics. There are four aesthetics in the figure below. Each of the four aesthetics is set in correspondence with a variable—we say the variable is [*mapped*](https://en.wikipedia.org/w/index.php?search=mapped) to the aesthetic. Educational attainment is being mapped to horizontal position, GDP to vertical position, Internet connectivity to color, and length of roadways to size. Thus, we encode four variables (`gdp`, `educ`, `net_users`, and `roadways`) using the visual cues of position, position, color, and area, respectively.
+
+```{r, four-variables, warning=FALSE, echo=TRUE, fig.cap="(ref:four-variables-cap)"}
+g + geom_point(aes(color = net_users, size = roadways))
+```
+
+A data table provides the basis for drawing a data graphic. The relationship between a data table and a graphic is simple: Each case (row) in the data table becomes a mark in the graph. As the designer of the graphic, you choose which variables the graphic will display and how each variable is to be represented graphically: position, size, color, and so on.
+
+### **Scales**
+
+Compare the last figure above to the figure below. In the former, it is hard to discern differences in GDP due to its right-skewed distribution and the choice of a *linear* scale. In the latter, the *logarithmic* scale on the vertical axis makes the scatterplot more readable. Of course, this makes interpreting the plot more complex, so we must be very careful when doing so. Note that the only difference in the code is the addition of the `coord_trans()` directive.
+
+```{r, log-scale, warning=FALSE,echo=TRUE, fig.cap="Scatterplot using a logarithmic transformation of GDP that helps to mitigate visual clustering caused by the right-skewed distribution of GDP among countries."}
+g + 
+  geom_point(aes(color = net_users, size = roadways)) + 
+  coord_trans(y = "log10")
+```
+
+Scales can also be manipulated in **ggplot2** using any of the scale functions. For example, instead of using the `coord_trans()` function as we did above, we could have achieved a similar plot through the use of the `scale_y_continuous()` function. Similarly-named functions (e.g., `scale_x_continuous()`, `scale_x_discrete()`, `scale_color()`, etc.) perform analogous operations on different aesthetics.
+
+```{r, log-scale2, warning=FALSE, echo=TRUE, eval=TRUE, fig.cap="(ref:log-scale2-cap)"}
+g + 
+  geom_point(aes(color = net_users, size = roadways)) + 
+  scale_y_continuous(
+    name = "Gross Domestic Product", 
+    trans = "log10",
+    labels = scales::comma
+  )
+```
+
+::: callout-note
+⚠️ Not all scales are about position. For instance, in the figure, `net_users` is translated to color. Similarly, `roadways` is translated to size: the largest dot corresponds to a value of 30 roadways per unit area.
+:::
+
+### **Guides**
+
+Context is provided by *guides* (more commonly called legends). A guide helps a human reader understand the meaning of the visual cues by providing context.
+
+For position visual cues, the most common sort of guide is the familiar axis with its tick marks and labels. But other guides exist. In the last two figure we draw, legends relate how dot color corresponds to internet connectivity, and how dot size corresponds to length of roadways (note the use of a log scale). The `geom_text()` and `geom_label()` functions can also be used to provide specific textual annotations on the plot.
+
+### **Facets**
+
+Using multiple aesthetics such as shape, color, and size to display multiple variables can produce a confusing, hard-to-read graph. [*Facets*](https://en.wikipedia.org/w/index.php?search=Facets)—multiple side-by-side graphs used to display levels of a categorical variable—provide a simple and effective alternative. The figure below, uses facets to show different levels of Internet connectivity, providing a better view than the fourth figure we draw. There are two functions that create facets: `facet_wrap()` and `facet_grid()`. The former creates a facet for each level of a single categorical variable, whereas the latter creates a facet for each combination of two categorical variables, arranging them in a grid.
+
+```{r, facet-internet, warning=FALSE, echo=TRUE, message=FALSE, fig.cap="Scatterplot using facets for different ranges of Internet connectivity."}
+g + 
+  geom_point(alpha = 0.9, aes(size = roadways)) + 
+  coord_trans(y = "log10") + 
+  facet_wrap(~net_users, nrow = 1) + 
+  theme(legend.position = "top")
+```
+
+### **Layers**
+
+On occasion, data from more than one data table are graphed together. For example, the `MedicareCharges` and `MedicareProviders` data tables provide information about the average cost of each medical procedure in each state. If you live in [*New Jersey*](https://en.wikipedia.org/w/index.php?search=New%20Jersey), you might wonder how providers in your state charge for different medical procedures. However, you will certainly want to understand those averages in the context of the averages across all states. In the `MedicareCharges` table, each row represents a different medical procedure (`drg`) with its associated average cost in each state. We also create a second data table called `ChargesNJ`, which contains only those rows corresponding to providers in the state of New Jersey.
+
+```{r}
+ChargesNJ <- MedicareCharges |>
+  filter(stateProvider == "NJ")
+set.seed(101)
+ChargesNJ %>% 
+  head(10) %>%
+  mdsr_table(caption = "Glyph-ready data for the barplot layer.")
+```
+
+The first few rows from the data table for New Jersey are shown in the table above. This glyph-ready table can be translated to a chart (the figure below) using bars to represent the average charges for different medical procedures in New Jersey. The `geom_col()` function creates a separate bar for each of the 100 different medical procedures.
+
+```{r, compare-NJ, echo=TRUE, fig.cap="Bar graph of average charges for medical procedures in New Jersey."}
+p <- ggplot(
+  data = ChargesNJ, 
+  aes(x = reorder(drg, mean_charge), y = mean_charge)
+) +
+  geom_col(fill = "gray") +
+  ylab("Statewide Average Charges ($)") + 
+  xlab("Medical Procedure (DRG)") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = rel(0.5)))
+p
+```
+
+How do the charges in New Jersey compare to those in other states? The two data tables, one for New Jersey and one for the whole country, can be plotted with different glyph types: bars for New Jersey and dots for the states across the whole country as in the figure below.
+
+```{r, compare-NJ-2, echo=TRUE, fig.cap="Bar graph adding a second layer to provide a comparison of New Jersey to other states. Each dot represents one state, while the bars represent New Jersey."}
+p + geom_point(data = MedicareCharges, size = 1, alpha = 0.3) 
+```
+
+With the context provided by the individual states, it is easy to see that the charges in New Jersey are among the highest in the country for each medical procedure.
