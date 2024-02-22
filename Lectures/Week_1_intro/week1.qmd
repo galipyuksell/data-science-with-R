@@ -29,16 +29,16 @@ dpath <- "data"
 ::: callout-note
 🤔 Information is what we want, but data are what we’ve got. The techniques for transforming data into information is the ***data science!***
 
-**Data scientists** are, thus, people who are interested in converting the data that is now abundant into actionable information that always seems to be scarce.
-:::
+**Data scientists, therefore, are individuals who strive to transform the plentiful data available today into actionable information, which often appears to be in short supply**
 
-🚀 Our aims is to prepare **well-documented and reproducible** analysis.
+Our aims is to prepare **well-documented and reproducible** analysis.
+:::
 
 🚀 ***Think with data = desire to solve problems using data***
 
-🚀 **A data scientist** is "a knowledge worker" who is principally occupied with analyzing complex and massive data resources. [***Data scientists***]{.underline} are people who are interested in converting the data that is now abundant into actionable information that always seems to be scarce. The essence is to extract meaningful information from data!
+🚀 **A data scientist** is "a knowledge worker" who is principally occupied with analyzing complex and massive data resources.
 
-🚀**Demand** for data skills is strong! Data Scientist is one of the best job in the US since 2016.
+🚀**Demand** for data skills is strong! Data Scientist is one of the best job in the world since 2016.
 
 🚀The Key components that are part of [***data acumen***]{.underline} include mathematical, computational, and statistical foundations, data management and curation, data description and visualization, data modeling and assessment, workflow and reproducibility, communication and teamwork, domain-specific considerations, and ethical problem solving. 
 

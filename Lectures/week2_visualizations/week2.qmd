@@ -128,7 +128,7 @@ Former *New York Times* intern and [FlowingData.com](https://flowingdata.com/) c
     **Table 2.1: Visual cues and what they signify.**
 
 | Visual Cue | Variable Type | Question                                           |
-|:---------------|:---------------|:---------------------------------------|
+|:-----------|:--------------|:---------------------------------------------------|
 | Position   | numerical     | where in relation to other things?                 |
 | Length     | numerical     | how big (in one dimension)?                        |
 | Angle      | numerical     | how wide? parallel to something else?              |
@@ -183,7 +183,7 @@ We have presented a taxonomy for understanding data graphics. Now, we can illust
 
 In the grammar of **ggplot2**, an [*aesthetic*](https://en.wikipedia.org/w/index.php?search=aesthetic) is an explicit mapping between a variable and the visual cues that represent its values. A [*glyph*](https://en.wikipedia.org/w/index.php?search=glyph) is the basic graphical element that represents one case (other terms used include “mark” and “symbol”). In a scatterplot, the *positions* of a glyph on the plot—in both the horizontal and vertical senses—are the [*visual cues*](https://en.wikipedia.org/w/index.php?search=visual%20cues) that help the viewer understand how big the corresponding quantities are. The *aesthetic* is the mapping that defines these correspondences. When more than two variables are present, additional aesthetics can marshal additional visual cues. Note also that some visual cues (like *direction* in a time series) are implicit and do not have a corresponding aesthetic.
 
-### Example: 
+### Example:
 
 We begin with a data set that includes measures that are relevant to answer questions about economic productivity. The `CIACountries` data table contains seven variables collected for each of 236 countries: population (`pop`), area (`area`), gross domestic product (`gdp`), percentage of GDP spent on education (`educ`), length of roadways per unit area (`roadways`), Internet use as a fraction of the population (`net_users`), and the number of barrels of oil produced per day (`oil_prod`).
 
