@@ -128,7 +128,7 @@ Former *New York Times* intern and [FlowingData.com](https://flowingdata.com/) c
     **Table 2.1: Visual cues and what they signify.**
 
 | Visual Cue | Variable Type | Question                                           |
-|:-----------|:--------------|:---------------------------------------------------|
+|:--------------|:--------------|:------------------------------------------|
 | Position   | numerical     | where in relation to other things?                 |
 | Length     | numerical     | how big (in one dimension)?                        |
 | Angle      | numerical     | how wide? parallel to something else?              |
@@ -304,3 +304,229 @@ p + geom_point(data = MedicareCharges, size = 1, alpha = 0.3)
 ```
 
 With the context provided by the individual states, it is easy to see that the charges in New Jersey are among the highest in the country for each medical procedure.
+
+# **Canonical data graphics in R**
+
+There are several data graphics that every data scientist should know how to make and interpret.
+
+## Univariate Displays
+
+### Numeric Variables
+
+It is generally useful to understand how a single variable is distributed. If that variable is numeric, then its distribution is commonly summarized graphically using a [*histogram*](https://en.wikipedia.org/w/index.php?search=histogram) or [*density plot*](https://en.wikipedia.org/w/index.php?search=density%20plot). Both convey the same information, but whereas the histogram uses pre-defined bins to create a discrete distribution, a density plot uses a [*kernel smoother*](https://en.wikipedia.org/w/index.php?search=kernel%20smoother) to make a continuous curve.
+
+```{r}
+g <- ggplot(data = SAT_2010, aes(x = math))
+```
+
+```{r SAT-1, fig.cap="Histogram showing the distribution of math SAT scores by state."}
+g + geom_histogram(binwidth = 10) + labs(x = "Average Math SAT score")
+```
+
+The binwidth argument is utilized to determine the width of bins in a histogram. In the context provided, each bin encompasses a 10-point range of SAT scores. It's important to note that the appearance of a histogram can significantly differ depending on the chosen bin widths, and there isn't a universally optimal choice. Determining the most suitable bin width for your data requires individual assessment and consideration of the dataset's characteristics.
+
+```{r SAT-2, fig.cap="Density plot showing the distribution of average math SAT scores by state."}
+g + geom_density(adjust = 0.3)
+```
+
+In the density plot depicted in the figure above, the adjust argument is employed to adjust the bandwidth utilized by the kernel smoother. This adjustment allows for fine-tuning the smoothing process and influencing the level of detail and smoothness in the density estimation.
+
+### Categorical Variables
+
+If your variable is categorical, it doesn’t make sense to think about the values as having a continuous density. Instead, we can use a [*bar graph*](https://en.wikipedia.org/w/index.php?search=bar%20graph) to display the distribution of a categorical variable.
+
+```{r bar2, fig.cap="A bar plot showing the distribution of average math SAT scores for a selection of states."}
+ggplot(
+  data = head(SAT_2010, 10), 
+  aes(x = reorder(state, math), y = math)
+) +
+  geom_col() +
+  labs(x = "State", y = "Average Math SAT score")
+
+#  First, we use the head() function to display only the first 10 states (in alphabetical order). Second, we use the reorder() function to sort the state names in order of their average math SAT score.
+```
+
+::: callout-note
+👋 As noted earlier, we recommend against the use of pie charts to display the distribution of a categorical variable since, in most cases, a table of frequencies is more informative.
+:::
+
+## Multivariate Displays
+
+### Two Numeric Variables
+
+Multivariate displays are indeed highly effective for illustrating the relationships between multiple variables simultaneously. Among these, the scatterplot stands out as an excellent method for visualizing observations of two quantitative (or numerical) variables. In the ggplot2 package, the scatterplot is generated using the geom_point() command. The primary objective of a scatterplot is to illustrate the relationship between two variables across numerous cases. Typically, it employs a Cartesian coordinate system where the x-axis represents one variable, and the y-axis represents the value of a second variable.
+
+```{r basic-scatterplot}
+g <- ggplot(
+  data = SAT_2010, 
+  aes(x = expenditure, y = math)
+) + 
+  geom_point()
+g
+```
+
+We will also add a smooth trend line and some more specific axis labels. We use the `geom_smooth()` function in order to plot the simple linear regression line (`method = "lm"`) through the points
+
+```{r}
+g <- g + 
+  geom_smooth(method = "lm", se = FALSE) + 
+  xlab("Average expenditure per student ($1000)") +
+  ylab("Average score on math SAT")
+g
+```
+
+In the figure above, we plot the relationship between the average SAT math score and the expenditure per pupil (in thousands of United States dollars) among states in 2010. A third (categorical) variable can be added through *faceting* and/or *layering*. In this case, we use the `mutate()` function to create a new variable called `SAT_rate` that places states into bins (e.g., high, medium, low) based on the percentage of students taking the SAT. Additionally, in order to include that new variable in our plots, we use the `%+%` operator to update the data frame that is bound to our plot.
+
+```{r}
+SAT_2010 <- SAT_2010 %>%
+  mutate(
+    SAT_rate = cut(
+      sat_pct, 
+      breaks = c(0, 30, 60, 100), 
+      labels = c("low", "medium", "high")
+    )
+  )
+g <- g %+% SAT_2010
+
+# %+% is used for adding elements to a ggplot2 plot. 
+```
+
+We can also use the color aesthetic to separate the data by SAT_rate on a single plot (i.e., layering).
+
+```{r groups-color, fig.cap="(ref:groups-color-cap)", message=FALSE}
+g + aes(color = SAT_rate)
+
+```
+
+Same can be done with faceting options via facet_warp() function
+
+```{r bar-facet, fig.cap="(ref:bar-facet-cap)", message=FALSE}
+g + facet_wrap(~ SAT_rate)
+```
+
+The `NHANES` data table provides medical, behavioral, and morphometric measurements of individuals. The scatterplot in the figure below shows the relationship between two of the variables, height and age. Each dot represents one person and the position of that dot signifies the value of the two variables for that person. Scatterplots are useful for visualizing a simple relationship between two variables. For instance, you can see in the figure the familiar pattern of growth in height from birth to the late teens.
+
+It’s helpful to do a bit more wrangling (more on this later) to ensure that the spatial relationship of the lines (adult men tend to be taller than adult women) matches the ordering of the legend labels. Here we use the `fct_relevel()` function (from the **forcats** package) to reset the factor levels.
+
+```{r NHANES-height-age, echo=TRUE, message=FALSE, warning=FALSE, fig.cap="(ref:nhanes-cap)"}
+library(NHANES)
+ggplot(
+  data = slice_sample(NHANES, n = 1000), 
+  aes(x = Age, y = Height, color = fct_relevel(Gender, "male"))
+) + 
+  geom_point() + 
+  geom_smooth() + 
+  xlab("Age (years)") + 
+  ylab("Height (cm)") +
+  labs(color = "Gender")
+```
+
+Some scatterplots have special meanings. A [*time series*](https://en.wikipedia.org/w/index.php?search=time%20series)—such as the one shown in the figure below—is just a scatterplot with time on the horizontal axis and points connected by lines to indicate temporal continuity. In the figure, the temperature at a weather station in western [*Massachusetts*](https://en.wikipedia.org/w/index.php?search=Massachusetts) is plotted over the course of the year. The familiar fluctuations based on the seasons are evident. Be especially aware of dubious causality in these plots: Is time really a good explanatory variable?
+
+```{r time-series, message=FALSE, fig.cap="A time series showing the change in temperature at the MacLeish field station in 2015."}
+library(macleish)
+ggplot(data = whately_2015, aes(x = when, y = temperature)) + 
+  geom_line(color = "darkgray") + 
+  geom_smooth() + 
+  xlab(NULL) + 
+  ylab("Temperature (degrees Celsius)")
+```
+
+### Two Categorical Variables
+
+An informative graphical display can be achieved using a [*stacked bar plot*](https://en.wikipedia.org/w/index.php?search=stacked%20bar%20plot), for more than one categorical variables.
+
+```{r stacked-bar, fig.cap="(ref:stacked-bar-cap)"}
+ggplot(data = mosaicData::HELPrct, aes(x = homeless)) + 
+  geom_bar(aes(fill = substance), position = "fill") +
+  scale_fill_brewer(palette = "Spectral") + 
+  coord_flip()
+
+# Note that we have used the coord_flip() function to display the bars horizontally instead of vertically.
+```
+
+When both the explanatory and response variables are categorical (or binned), points and lines don’t work as well. How likely is a person to have [*diabetes*](https://en.wikipedia.org/w/index.php?search=diabetes), based on their age and [*BMI*](https://en.wikipedia.org/w/index.php?search=BMI) (body mass index)? In the [*mosaic plot*](https://en.wikipedia.org/w/index.php?search=mosaic%20plot) (or eikosogram) shown in the figure below, the number of observations in each cell is proportional to the area of the box. Thus, you can see that diabetes tends to be more common for older people as well as for those who are obese, since the blue-shaded regions are larger than expected under an independence model while the pink are less than expected. These provide a more accurate depiction of the intuitive notions of probability familiar from [*Venn diagrams*](https://en.wikipedia.org/w/index.php?search=Venn%20diagrams)*.*
+
+```{r prepmosaic, echo=FALSE}
+library(NHANES)
+library(ggmosaic)
+mosaic_to_plot <- NHANES %>%
+  filter(Age > 19) %>%
+  mutate(AgeDecade = droplevels(AgeDecade)) %>%
+  select(AgeDecade, Diabetes, BMI_WHO) %>% 
+  na.omit()
+```
+
+```{r NHANES-smoke, echo=FALSE, fig.cap="Mosaic plot (eikosogram) of diabetes by age and weight status (BMI).", message=FALSE}
+ggplot(mosaic_to_plot) +
+  geom_mosaic(
+    aes(x = product(BMI_WHO, AgeDecade), fill = Diabetes)
+  ) + 
+  ylab("BMI") + 
+  xlab("Age (by decade)") + 
+  coord_flip()
+```
+
+::: callout-note
+👋 Note that the `geom_mosaic()` function is not part of **ggplot2** but rather is available through the **ggmosaic** package.
+:::
+
+### One Numeric and One Categorical Variables
+
+For displaying a numerical response variable against a categorical explanatory variable, a common choice is a [*box-and-whisker*](https://en.wikipedia.org/w/index.php?search=box-and-whisker) (or box) plot. This also is the easiest to think about this as simply a graphical depiction of the [*five-number summary*](https://en.wikipedia.org/w/index.php?search=five-number%20summary) (minimum \[0th percentile\], Q1 \[25th percentile\], median \[50th percentile\], Q3 \[75th percentile\], and maximum \[100th percentile\]).
+
+```{r render=knitr::normal_print}
+whately_2015 %>%
+  mutate(month = as.factor(lubridate::month(when, label = TRUE))) %>%
+  group_by(month) %>% 
+  skim(temperature) %>%
+  select(-na)
+```
+
+```{r macleishbox, eval=TRUE, message=FALSE, fig.cap="A box-and-whisker of temperatures by month at the MacLeish field station."}
+ggplot(
+  data = whately_2015, 
+  aes(
+    x = lubridate::month(when, label = TRUE), 
+    y = temperature
+  )
+) + 
+  geom_boxplot() +
+  xlab("Month") + 
+  ylab("Temperature (degrees Celsius)")
+```
+
+```{r lattice, echo=FALSE}
+func_table <- tribble(
+  ~"response ($y$)", ~"explanatory ($x$)", ~"plot type", ~"geom_*()",
+  "", "numeric", "histogram, density", paste(func('geom_histogram', FALSE), func('geom_density', FALSE), sep = ", "), 
+  "", "categorical", "stacked bar", func('geom_bar', FALSE), 
+  "numeric", "numeric", "scatter", func('geom_point', FALSE), 
+  "numeric", "categorical", "box", func('geom_boxplot', FALSE), 
+  "categorical", "categorical", "mosaic", func('geom_mosaic', FALSE)
+) 
+
+func_caption <- paste0(
+  "Table of canonical data graphics and their corresponding ", 
+  "**ggplot2**", 
+  " commands. Note that ",
+  #      func("geom_mosaic"), 
+  "the mosaic plot function",
+  " is not part of the ", 
+  "**ggplot2**", " package."
+)
+
+if (knitr::is_latex_output()) {
+  func_table %>%
+    rename(`geom\\_*()` = `geom_*()`) %>%
+    mutate(`geom\\_*()` = str_remove_all(`geom\\_*()`, "`")) %>%
+    mutate(`geom\\_*()` = knitr:::escape_latex(`geom\\_*()`)) %>%
+    mdsr_table(
+      caption = str_replace_all(func_caption, "\\*\\*ggplot2\\*\\*", "\\\\textbf{ggplot2}"), escape = FALSE,
+#      format = "latex"
+    )
+} else {
+  func_table %>%
+    mdsr_table(caption = func_caption)
+}
+```
