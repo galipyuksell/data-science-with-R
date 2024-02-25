@@ -27,7 +27,9 @@ dpath <- "data"
 
 # Data visualization
 
-This week we will engage with the question of why well-designed data graphics are important and describe a taxonomy for understanding their composition.
+\| “The simple graph has brought more information to the data analyst’s mind than any other device.” — John Tukey
+
+This week we will engage with the question of why well-designed data graphics are important and describe a taxonomy for understanding their composition and I will teach you how to visualise your data using ggplot2.
 
 🚀well-designed data graphics are important
 
