@@ -130,7 +130,7 @@ Former *New York Times* intern and [FlowingData.com](https://flowingdata.com/) c
     **Table 2.1: Visual cues and what they signify.**
 
 | Visual Cue | Variable Type | Question                                           |
-|:--------------|:--------------|:------------------------------------------|
+|:-----------|:--------------|:---------------------------------------------------|
 | Position   | numerical     | where in relation to other things?                 |
 | Length     | numerical     | how big (in one dimension)?                        |
 | Angle      | numerical     | how wide? parallel to something else?              |
