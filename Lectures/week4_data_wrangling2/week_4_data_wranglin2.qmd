@@ -28,7 +28,7 @@ It’s rare that a data analysis involves only a single table of data. Typically
 
 To work with relational data you need verbs that work with pairs of tables:
 
-![Joining tables – Introduction to R/tidyverse for Exploratory Data Analysis](https://th.bing.com/th/id/OIP.lK9ChE5bnIcwBve9HvoMOwAAAA?rs=1&pid=ImgDetMain){alt="Joining tables – Introduction to R/tidyverse for Exploratory Data Analysis"}
+![Joining tables – Introduction to R/tidyverse for Exploratory Data Analysis](https://th.bing.com/th/id/OIP.lK9ChE5bnIcwBve9HvoMOwAAAA?rs=1&pid=ImgDetMain)
 
 ## Examples
 
@@ -86,7 +86,7 @@ An inner join keeps observations that appear in both tables. An **outer join** k
 
 -   A **full join** keeps all observations in `x` and `y`.
 
-### left_Joins() 
+### left_Joins()
 
 the flights and weather tables match on their common variables: `year`, `month`, `day`, `hour` and `origin`
 
