@@ -412,7 +412,7 @@ flights |>
   head()
 ```
 
-### **Combining multiple operations** 
+### **Combining multiple operations**
 
 Imagine that we want to explore the relationship between the distance and average delay for each location. Using what you know about dplyr, you might write code like this:
 
